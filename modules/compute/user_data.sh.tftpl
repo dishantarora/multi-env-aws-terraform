@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euxo pipefail
+
+dnf install -y nginx
+systemctl enable --now nginx
+
+cat > /usr/share/nginx/html/index.html <<'HTML'
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8"><title>${app_message}</title></head>
+  <body>
+    <h1>${app_message}</h1>
+    <p>Served by an EC2 instance in a private subnet.</p>
+    <p>Instance: $(hostname)</p>
+  </body>
+</html>
+HTML

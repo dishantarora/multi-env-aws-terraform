@@ -1,0 +1,16 @@
+# Terraform working data and state
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Environment-specific local configuration
+**/backend.hcl
+**/terraform.tfvars
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/
