@@ -1,4 +1,4 @@
-name: Deploy static site
+name: Multi-environment AWS deployment
 
 on:
   push:
