@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A static site deployed to AWS with Terraform, Amazon S3, CloudFront, and GitHub Actions."
+    />
+    <title>Cloud Canvas | __ENVIRONMENT__</title>
+    <link rel="stylesheet" href="/site/styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Cloud Canvas home">
+          <span class="brand-mark" aria-hidden="true">C</span>
+          <span>Cloud Canvas</span>
+        </a>
+        <span class="environment-badge">
+          <span class="status-dot" aria-hidden="true"></span>
+          __ENVIRONMENT__
+        </span>
+      </header>
+
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow">A small site with a solid foundation</p>
+        <h1 id="hero-title">Ship the page.<br /><span>Trust the platform.</span></h1>
+        <p class="hero-copy">
+          This static site is delivered over HTTPS by CloudFront, stored in a private S3 bucket,
+          and published by GitHub Actions.
+        </p>
+        <a class="button" href="#how-it-works">
+          Explore the setup
+          <span aria-hidden="true">↓</span>
+        </a>
+        <div class="orbit orbit-one" aria-hidden="true"></div>
+        <div class="orbit orbit-two" aria-hidden="true"></div>
+        <div class="hero-spark spark-one" aria-hidden="true">✳</div>
+        <div class="hero-spark spark-two" aria-hidden="true">✦</div>
+      </section>
+
+      <section class="feature-grid" id="how-it-works" aria-label="Deployment architecture">
+        <article class="feature-card">
+          <span class="card-index">01</span>
+          <div class="card-icon icon-violet" aria-hidden="true">⌘</div>
+          <h2>One source</h2>
+          <p>Plain HTML and CSS live in GitHub, ready for a quick edit and a clean review.</p>
+        </article>
+        <article class="feature-card featured-card">
+          <span class="card-index">02</span>
+          <div class="card-icon icon-peach" aria-hidden="true">↗</div>
+          <h2>Two environments</h2>
+          <p>Push to <code>main</code> for staging. Promote to production with a deliberate release.</p>
+        </article>
+        <article class="feature-card">
+          <span class="card-index">03</span>
+          <div class="card-icon icon-mint" aria-hidden="true">◎</div>
+          <h2>Edge delivered</h2>
+          <p>CloudFront serves the site over HTTPS while the S3 origin stays private.</p>
+        </article>
+      </section>
+
+      <footer class="footer">
+        <span>Built with Terraform · Deployed with GitHub Actions</span>
+        <span class="footer-environment">Now viewing: __ENVIRONMENT__</span>
+      </footer>
+    </main>
+  </body>
+</html>

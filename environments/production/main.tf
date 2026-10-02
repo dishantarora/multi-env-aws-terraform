@@ -41,3 +41,18 @@ output "vpc_id" {
   description = "Production VPC ID."
   value       = module.environment.vpc_id
 }
+
+output "static_site_url" {
+  description = "HTTPS URL of the production static site."
+  value       = module.environment.static_site_url
+}
+
+output "static_site_bucket_name" {
+  description = "Private S3 bucket used by the production site deployment workflow."
+  value       = module.environment.static_site_bucket_name
+}
+
+output "static_site_distribution_id" {
+  description = "CloudFront distribution ID for the production site."
+  value       = module.environment.static_site_distribution_id
+}

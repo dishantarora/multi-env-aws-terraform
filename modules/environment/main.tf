@@ -49,3 +49,10 @@ module "compute" {
   enable_deletion_protection = var.enable_deletion_protection
   tags                       = local.common_tags
 }
+
+module "static_site" {
+  source = "../static-site"
+
+  name = var.environment
+  tags = local.common_tags
+}
