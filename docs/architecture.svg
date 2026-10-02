@@ -1,0 +1,320 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1180" role="img" aria-labelledby="title desc">
+  <title id="title">Multi-environment AWS architecture</title>
+  <desc id="desc">GitHub Actions deploys a static site to separate staging and production CloudFront and private S3 origins using OIDC roles. Terraform provisions each environment's VPC, load balancer, private EC2 Auto Scaling group, and static hosting. Each environment has a separate Terraform state key in a shared state bucket.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbfcff"/>
+      <stop offset="1" stop-color="#f2f5fb"/>
+    </linearGradient>
+    <linearGradient id="aws" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff9ed"/>
+      <stop offset="1" stop-color="#fffdf8"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#18253b" flood-opacity=".08"/>
+    </filter>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#7256c9"/>
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#e58a19"/>
+    </marker>
+    <marker id="arrowTeal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#168b91"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#4a76b8"/>
+    </marker>
+
+    <symbol id="icon-github" viewBox="0 0 48 48">
+      <path fill="currentColor" d="M24 4C12.95 4 4 12.95 4 24c0 8.84 5.73 16.34 13.68 18.99 1 .18 1.36-.43 1.36-.96v-3.38c-5.56 1.21-6.74-2.36-6.74-2.36-.91-2.31-2.22-2.93-2.22-2.93-1.82-1.25.14-1.23.14-1.23 2.01.14 3.07 2.07 3.07 2.07 1.79 3.06 4.7 2.18 5.85 1.67.18-1.3.7-2.18 1.27-2.68-4.44-.51-9.11-2.22-9.11-9.89 0-2.19.78-3.98 2.06-5.39-.21-.51-.89-2.56.2-5.32 0 0 1.68-.54 5.5 2.06a19.1 19.1 0 0 1 10.01 0c3.82-2.6 5.5-2.06 5.5-2.06 1.09 2.76.41 4.81.2 5.32 1.28 1.41 2.06 3.2 2.06 5.39 0 7.69-4.68 9.37-9.14 9.87.72.62 1.36 1.84 1.36 3.71v5.49c0 .53.36 1.15 1.37.96C38.28 40.33 44 32.84 44 24 44 12.95 35.05 4 24 4z"/>
+    </symbol>
+    <symbol id="icon-repo" viewBox="0 0 48 48">
+      <path d="M10 5h22l7 7v31H10z" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"/>
+      <path d="M31 5v8h8M17 21h15M17 27h15M17 33h10" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-actions" viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="2.8"/>
+      <path d="M21 16l12 8-12 8z" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"/>
+      <path d="M7 24h5M36 24h5M24 7v5M24 36v5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-key" viewBox="0 0 48 48">
+      <circle cx="17" cy="21" r="9" fill="none" stroke="currentColor" stroke-width="2.8"/>
+      <path d="M24 27l15 15m-6-6 5-5m-10 0 5-5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14 21h6m-3-3v6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-bucket" viewBox="0 0 48 48">
+      <path d="M9 15h30l-3 27H12zM8 15l5-8h22l5 8M14 20v17m20-17v17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M18 25h12" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-globe" viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="2.6"/>
+      <path d="M5 24h38M24 5c6 5 9 11 9 19s-3 14-9 19m0-38c-6 5-9 11-9 19s3 14 9 19" fill="none" stroke="currentColor" stroke-width="2.3"/>
+      <path d="M9 13h30M9 35h30" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    </symbol>
+    <symbol id="icon-vpc" viewBox="0 0 48 48">
+      <path d="M24 4l19 10v20L24 44 5 34V14z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M24 4v14m19-4L31 21M5 14l12 7m7 23V30" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="5" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    </symbol>
+    <symbol id="icon-alb" viewBox="0 0 48 48">
+      <rect x="16" y="5" width="16" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2.6"/>
+      <rect x="4" y="32" width="13" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2.6"/>
+      <rect x="31" y="32" width="13" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2.6"/>
+      <path d="M24 16v8M10.5 32v-8h27v8M10.5 27h27" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="icon-server" viewBox="0 0 48 48">
+      <rect x="6" y="6" width="36" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <rect x="6" y="27" width="36" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <circle cx="13" cy="13.5" r="1.8" fill="currentColor"/><circle cx="13" cy="34.5" r="1.8" fill="currentColor"/>
+      <path d="M20 13.5h15M20 34.5h15" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-browser" viewBox="0 0 48 48">
+      <rect x="5" y="8" width="38" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="2.6"/>
+      <path d="M5 17h38" stroke="currentColor" stroke-width="2.6"/>
+      <circle cx="12" cy="12.5" r="1" fill="currentColor"/><circle cx="17" cy="12.5" r="1" fill="currentColor"/>
+      <path d="M14 28h20M14 33h13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="icon-lock" viewBox="0 0 48 48">
+      <rect x="9" y="21" width="30" height="22" rx="4" fill="none" stroke="currentColor" stroke-width="2.6"/>
+      <path d="M15 21v-7a9 9 0 0 1 18 0v7M24 29v6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+      <circle cx="24" cy="29" r="2" fill="currentColor"/>
+    </symbol>
+  </defs>
+
+  <style>
+    text { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #18253b; }
+    .muted { fill: #63718a; }
+    .tiny { font-size: 13px; letter-spacing: .2px; }
+    .small { font-size: 15px; }
+    .label { font-size: 16px; font-weight: 650; }
+    .section { font-size: 19px; font-weight: 720; }
+    .node-title { font-size: 16px; font-weight: 700; }
+    .card { fill: #fff; stroke: #dce3ef; stroke-width: 1.5; }
+    .node { fill: #fff; stroke: #dce3ef; stroke-width: 1.5; }
+  </style>
+
+  <rect width="1800" height="1180" rx="26" fill="url(#bg)"/>
+  <text x="52" y="58" font-size="31" font-weight="760">Multi-environment AWS architecture</text>
+  <text x="54" y="88" font-size="16" class="muted">Terraform provisions isolated staging and production stacks; GitHub Actions publishes the static site through short-lived AWS credentials.</text>
+
+  <g transform="translate(55 111)">
+    <rect width="14" height="4" rx="2" y="8" fill="#e58a19"/>
+    <text x="22" y="14" class="tiny muted">Site upload / cache invalidation</text>
+    <path d="M234 10h28" fill="none" stroke="#168b91" stroke-width="2.4" marker-end="url(#arrowTeal)"/>
+    <text x="272" y="14" class="tiny muted">Visitor and service traffic</text>
+    <path d="M492 10h28" fill="none" stroke="#4a76b8" stroke-width="2.2" stroke-dasharray="5 5" marker-end="url(#arrowBlue)"/>
+    <text x="530" y="14" class="tiny muted">Terraform state / infrastructure</text>
+  </g>
+
+  <!-- Sources outside AWS -->
+  <g filter="url(#shadow)">
+    <rect x="48" y="165" width="318" height="145" rx="18" class="card"/>
+    <rect x="48" y="336" width="318" height="190" rx="18" class="card"/>
+    <rect x="48" y="555" width="318" height="147" rx="18" class="card"/>
+    <rect x="48" y="731" width="318" height="210" rx="18" class="card"/>
+  </g>
+
+  <g color="#202c3c">
+    <use href="#icon-github" x="70" y="190" width="48" height="48"/>
+    <use href="#icon-repo" x="124" y="197" width="38" height="38"/>
+  </g>
+  <text x="176" y="207" class="node-title">GitHub repository</text>
+  <text x="176" y="232" class="small muted">Terraform modules</text>
+  <text x="176" y="250" class="small muted">and static site files</text>
+  <rect x="70" y="270" width="270" height="28" rx="9" fill="#f1f4fa"/>
+  <text x="84" y="289" class="tiny muted">main · environments/staging · production</text>
+  <path d="M207 310v22" stroke="#7256c9" stroke-width="2.4" marker-end="url(#arrowPurple)"/>
+
+  <g color="#7256c9"><use href="#icon-actions" x="70" y="361" width="48" height="48"/></g>
+  <text x="130" y="379" class="node-title">GitHub Actions</text>
+  <text x="130" y="402" class="small muted">Site deploy on main → staging</text>
+  <text x="130" y="424" class="small muted">Run workflow → production</text>
+  <path d="M84 454h245" stroke="#e8eaf1" stroke-width="1.4"/>
+  <text x="84" y="478" class="tiny" font-weight="700" fill="#7256c9">OIDC · temporary credentials</text>
+  <text x="84" y="500" class="tiny muted">Reads environment outputs from state</text>
+  <text x="84" y="518" class="tiny muted">Syncs site files and invalidates CDN</text>
+
+  <g color="#4a76b8"><use href="#icon-vpc" x="70" y="581" width="48" height="48"/></g>
+  <text x="130" y="600" class="node-title">Local Terraform operator</text>
+  <text x="130" y="625" class="small muted">AWS profile / IAM Identity Center</text>
+  <text x="70" y="667" class="tiny muted">Plans/applies staging and production</text>
+
+  <!-- AWS account boundary -->
+  <rect x="405" y="132" width="1350" height="1008" rx="26" fill="url(#aws)" stroke="#edc785" stroke-width="2"/>
+  <rect x="428" y="145" width="256" height="30" rx="10" fill="#fff1d9"/>
+  <text x="444" y="166" class="tiny" font-weight="750" fill="#9b5b0b">AWS ACCOUNT · us-east-1 (default)</text>
+
+  <!-- Shared control plane -->
+  <g filter="url(#shadow)">
+    <rect x="430" y="188" width="1298" height="158" rx="18" class="card"/>
+  </g>
+  <text x="454" y="215" class="section">Shared control plane</text>
+  <text x="454" y="239" class="tiny muted">One account by default · staging/prod can use separate AWS accounts for stronger isolation</text>
+
+  <g>
+    <rect x="455" y="253" width="255" height="73" rx="13" fill="#f5f2ff" stroke="#d9cff9"/>
+    <g color="#7256c9"><use href="#icon-key" x="470" y="265" width="45" height="45"/></g>
+    <text x="523" y="278" class="node-title">GitHub OIDC</text>
+    <text x="523" y="301" class="tiny muted">Federated trust provider</text>
+
+    <rect x="735" y="253" width="390" height="73" rx="13" fill="#f8f7ff" stroke="#d9cff9"/>
+    <g color="#7256c9"><use href="#icon-lock" x="750" y="265" width="43" height="43"/></g>
+    <text x="802" y="278" class="node-title">Environment IAM roles</text>
+    <text x="802" y="301" class="tiny muted">Staging role · Production role (least privilege)</text>
+
+    <rect x="1150" y="253" width="550" height="73" rx="13" fill="#eff6ff" stroke="#cbdcf4"/>
+    <g color="#4a76b8"><use href="#icon-bucket" x="1165" y="265" width="43" height="43"/></g>
+    <text x="1217" y="278" class="node-title">Terraform state · private S3 bucket</text>
+    <text x="1217" y="301" class="tiny muted">Separate keys: staging/terraform.tfstate · production/terraform.tfstate</text>
+  </g>
+
+  <!-- Connections from source systems into shared control plane -->
+  <path d="M366 425H389V289H455" fill="none" stroke="#7256c9" stroke-width="2.5" marker-end="url(#arrowPurple)"/>
+  <rect x="383" y="352" width="64" height="22" rx="7" fill="#fbfcff"/>
+  <text x="389" y="367" class="tiny" fill="#7256c9">assume</text>
+  <path d="M366 628H394V335H1442V328" fill="none" stroke="#4a76b8" stroke-width="2.3" stroke-dasharray="7 6" marker-end="url(#arrowBlue)"/>
+
+  <!-- Environment panels -->
+  <g filter="url(#shadow)">
+    <rect x="430" y="371" width="630" height="742" rx="20" class="card"/>
+    <rect x="1080" y="371" width="648" height="742" rx="20" class="card"/>
+  </g>
+
+  <rect x="430" y="371" width="630" height="60" rx="20" fill="#edf8f4"/>
+  <path d="M430 411v20h630v-20" fill="#edf8f4"/>
+  <circle cx="461" cy="401" r="13" fill="#19856a"/>
+  <path d="M455 401l4 4 8-9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="485" y="399" class="section">Staging</text>
+  <text x="485" y="419" class="tiny muted">10.10.0.0/16 · cost-conscious settings</text>
+  <rect x="912" y="387" width="125" height="28" rx="9" fill="#d9f0e7"/>
+  <text x="933" y="406" class="tiny" font-weight="700" fill="#176c55">DEPLOY TARGET</text>
+
+  <rect x="1080" y="371" width="648" height="60" rx="20" fill="#f3efff"/>
+  <path d="M1080 411v20h648v-20" fill="#f3efff"/>
+  <circle cx="1111" cy="401" r="13" fill="#7256c9"/>
+  <path d="M1105 401l4 4 8-9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="1135" y="399" class="section">Production</text>
+  <text x="1135" y="419" class="tiny muted">10.20.0.0/16 · resilient settings</text>
+  <rect x="1573" y="387" width="126" height="28" rx="9" fill="#e8e0ff"/>
+  <text x="1594" y="406" class="tiny" font-weight="700" fill="#5a42a2">DEPLOY TARGET</text>
+
+  <!-- Staging static site -->
+  <rect x="451" y="448" width="588" height="207" rx="16" fill="#fffaf1" stroke="#f0dfc3"/>
+  <text x="470" y="475" class="label">Static website · HTTPS delivery</text>
+  <rect x="470" y="490" width="100" height="100" rx="13" fill="#fff" stroke="#f0dfc3"/>
+  <g color="#168b91"><use href="#icon-browser" x="481" y="501" width="40" height="40"/></g>
+  <text x="525" y="520" class="tiny" font-weight="700">Visitor</text>
+  <text x="525" y="541" class="tiny muted">HTTPS</text>
+  <path d="M572 540h16" stroke="#168b91" stroke-width="2.5" marker-end="url(#arrowTeal)"/>
+
+  <rect x="595" y="490" width="177" height="100" rx="13" class="node"/>
+  <g color="#e58a19"><use href="#icon-globe" x="605" y="505" width="44" height="44"/></g>
+  <text x="654" y="525" class="node-title">CloudFront</text>
+  <text x="654" y="547" class="tiny muted">HTTPS edge CDN</text>
+  <text x="654" y="568" class="tiny muted">default hostname</text>
+
+  <path d="M774 540h15" stroke="#168b91" stroke-width="2.5" marker-end="url(#arrowTeal)"/>
+  <rect x="796" y="490" width="207" height="100" rx="13" class="node"/>
+  <g color="#e58a19"><use href="#icon-bucket" x="807" y="505" width="45" height="45"/></g>
+  <text x="860" y="525" class="node-title">Private S3</text>
+  <text x="860" y="547" class="tiny muted">Origin via OAC</text>
+  <text x="860" y="568" class="tiny muted">Block public access</text>
+  <text x="470" y="624" class="tiny" fill="#a9610f">Actions syncs HTML/CSS to S3 and invalidates CloudFront</text>
+
+  <!-- Staging compute -->
+  <rect x="451" y="675" width="588" height="414" rx="16" fill="#f7f9fd" stroke="#dce3ef"/>
+  <g color="#4a76b8"><use href="#icon-vpc" x="468" y="691" width="36" height="36"/></g>
+  <text x="512" y="708" class="label">Compute example · VPC across 2 AZs</text>
+  <text x="471" y="739" class="tiny muted">Public subnet</text>
+  <rect x="470" y="751" width="548" height="88" rx="12" fill="#fff" stroke="#dce3ef"/>
+  <path d="M454 795h31" stroke="#168b91" stroke-width="2.4" marker-end="url(#arrowTeal)"/>
+  <rect x="489" y="763" width="190" height="64" rx="10" fill="#eff6ff" stroke="#cbdcf4"/>
+  <g color="#4a76b8"><use href="#icon-alb" x="498" y="772" width="43" height="43"/></g>
+  <text x="548" y="789" class="node-title">Application</text>
+  <text x="548" y="811" class="tiny muted">Load Balancer</text>
+  <path d="M681 795h51" stroke="#168b91" stroke-width="2.5" marker-end="url(#arrowTeal)"/>
+  <rect x="741" y="763" width="292" height="64" rx="10" fill="#f0fbfa" stroke="#bfe4e3"/>
+  <g color="#168b91"><use href="#icon-server" x="751" y="774" width="42" height="42"/></g>
+  <text x="802" y="789" class="node-title">EC2 Auto Scaling</text>
+  <text x="802" y="811" class="tiny muted">private subnets · desired 1</text>
+
+  <text x="471" y="864" class="tiny muted">Private subnets · across two Availability Zones</text>
+  <rect x="470" y="876" width="267" height="88" rx="12" fill="#fff" stroke="#dce3ef"/>
+  <text x="489" y="902" class="node-title">AZ 1</text>
+  <text x="489" y="927" class="tiny muted">EC2 capacity · NAT egress</text>
+  <rect x="750" y="876" width="268" height="88" rx="12" fill="#fff" stroke="#dce3ef"/>
+  <text x="769" y="902" class="node-title">AZ 2</text>
+  <text x="769" y="927" class="tiny muted">EC2 capacity · routed via NAT</text>
+  <rect x="470" y="982" width="548" height="77" rx="12" fill="#f4f6fa"/>
+  <text x="489" y="1008" class="tiny" font-weight="700">1 NAT gateway · Session Manager access</text>
+  <text x="489" y="1032" class="tiny muted">Security groups allow app traffic from ALB only; no inbound SSH</text>
+
+  <!-- Production static site -->
+  <rect x="1101" y="448" width="606" height="207" rx="16" fill="#fffaf1" stroke="#f0dfc3"/>
+  <text x="1120" y="475" class="label">Static website · HTTPS delivery</text>
+  <rect x="1120" y="490" width="100" height="100" rx="13" fill="#fff" stroke="#f0dfc3"/>
+  <g color="#168b91"><use href="#icon-browser" x="1131" y="501" width="40" height="40"/></g>
+  <text x="1175" y="520" class="tiny" font-weight="700">Visitor</text>
+  <text x="1175" y="541" class="tiny muted">HTTPS</text>
+  <path d="M1222 540h16" stroke="#168b91" stroke-width="2.5" marker-end="url(#arrowTeal)"/>
+
+  <rect x="1245" y="490" width="180" height="100" rx="13" class="node"/>
+  <g color="#e58a19"><use href="#icon-globe" x="1255" y="505" width="44" height="44"/></g>
+  <text x="1304" y="525" class="node-title">CloudFront</text>
+  <text x="1304" y="547" class="tiny muted">HTTPS edge CDN</text>
+  <text x="1304" y="568" class="tiny muted">default hostname</text>
+
+  <path d="M1427 540h15" stroke="#168b91" stroke-width="2.5" marker-end="url(#arrowTeal)"/>
+  <rect x="1449" y="490" width="207" height="100" rx="13" class="node"/>
+  <g color="#e58a19"><use href="#icon-bucket" x="1460" y="505" width="45" height="45"/></g>
+  <text x="1513" y="525" class="node-title">Private S3</text>
+  <text x="1513" y="547" class="tiny muted">Origin via OAC</text>
+  <text x="1513" y="568" class="tiny muted">Block public access</text>
+  <text x="1120" y="624" class="tiny" fill="#a9610f">Actions syncs HTML/CSS to S3 and invalidates CloudFront</text>
+
+  <!-- Production compute -->
+  <rect x="1101" y="675" width="606" height="414" rx="16" fill="#f7f9fd" stroke="#dce3ef"/>
+  <g color="#4a76b8"><use href="#icon-vpc" x="1118" y="691" width="36" height="36"/></g>
+  <text x="1162" y="708" class="label">Compute example · VPC across 2 AZs</text>
+  <text x="1121" y="739" class="tiny muted">Public subnet</text>
+  <rect x="1120" y="751" width="568" height="88" rx="12" fill="#fff" stroke="#dce3ef"/>
+  <path d="M1104 795h31" stroke="#168b91" stroke-width="2.4" marker-end="url(#arrowTeal)"/>
+  <rect x="1139" y="763" width="199" height="64" rx="10" fill="#eff6ff" stroke="#cbdcf4"/>
+  <g color="#4a76b8"><use href="#icon-alb" x="1148" y="772" width="43" height="43"/></g>
+  <text x="1198" y="789" class="node-title">Application</text>
+  <text x="1198" y="811" class="tiny muted">Load Balancer</text>
+  <path d="M1340 795h46" stroke="#168b91" stroke-width="2.5" marker-end="url(#arrowTeal)"/>
+  <rect x="1394" y="763" width="274" height="64" rx="10" fill="#f0fbfa" stroke="#bfe4e3"/>
+  <g color="#168b91"><use href="#icon-server" x="1404" y="774" width="42" height="42"/></g>
+  <text x="1455" y="789" class="node-title">EC2 Auto Scaling</text>
+  <text x="1455" y="811" class="tiny muted">private subnets · min 2</text>
+
+  <text x="1121" y="864" class="tiny muted">Private subnets · across two Availability Zones</text>
+  <rect x="1120" y="876" width="278" height="88" rx="12" fill="#fff" stroke="#dce3ef"/>
+  <text x="1139" y="902" class="node-title">AZ 1</text>
+  <text x="1139" y="927" class="tiny muted">EC2 capacity · NAT egress</text>
+  <rect x="1411" y="876" width="277" height="88" rx="12" fill="#fff" stroke="#dce3ef"/>
+  <text x="1430" y="902" class="node-title">AZ 2</text>
+  <text x="1430" y="927" class="tiny muted">EC2 capacity · NAT egress</text>
+  <rect x="1120" y="982" width="568" height="77" rx="12" fill="#f4f6fa"/>
+  <text x="1139" y="1008" class="tiny" font-weight="700">NAT gateway per AZ · Session Manager access</text>
+  <text x="1139" y="1032" class="tiny muted">Security groups allow app traffic from ALB only; no inbound SSH</text>
+
+  <!-- Shared deployment/control connections to each environment -->
+  <path d="M930 326V354H900V483" fill="none" stroke="#e58a19" stroke-width="2.4" stroke-dasharray="6 5" marker-end="url(#arrowOrange)"/>
+  <path d="M1018 326V354H1552V483" fill="none" stroke="#e58a19" stroke-width="2.4" stroke-dasharray="6 5" marker-end="url(#arrowOrange)"/>
+  <rect x="692" y="438" width="205" height="24" rx="8" fill="#fff7ea" stroke="#f1dfc4"/>
+  <text x="704" y="455" class="tiny" fill="#a9610f">assume staging role · sync</text>
+  <rect x="1337" y="438" width="225" height="24" rx="8" fill="#fff7ea" stroke="#f1dfc4"/>
+  <text x="1349" y="455" class="tiny" fill="#a9610f">assume production role · sync</text>
+
+  <g color="#4a76b8"><use href="#icon-key" x="70" y="755" width="44" height="44"/></g>
+  <text x="126" y="774" class="node-title">Environment isolation</text>
+  <text x="70" y="822" class="small muted">Separate Terraform roots and state keys</text>
+  <text x="70" y="849" class="small muted">Non-overlapping VPC CIDR ranges</text>
+  <text x="70" y="876" class="small muted">Same AWS account by default</text>
+  <text x="70" y="914" class="tiny muted">Use separate accounts for stronger boundaries.</text>
+
+  <text x="52" y="1147" class="tiny muted">Infrastructure and static hosting are separate paths: the sample HTML site does not call the EC2 service. Terraform apply is manual; the Actions workflow deploys site files only.</text>
+</svg>

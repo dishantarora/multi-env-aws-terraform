@@ -2,6 +2,12 @@
 
 This repository contains Terraform-managed AWS infrastructure and a small static website. It has no application backend or API. GitHub Actions publishes the HTML/CSS site to AWS after the hosting infrastructure has been created.
 
+## Architecture
+
+![High-level architecture showing GitHub Actions, Terraform state, and separate staging and production AWS environments](docs/architecture.svg)
+
+Terraform provisions a VPC and sample EC2 service alongside private S3 and CloudFront static hosting in each environment. GitHub Actions uses OIDC roles to deploy the site; it reads Terraform outputs but does not apply infrastructure changes. Staging and production have separate state keys and non-overlapping networks.
+
 ## What gets deployed
 
 Each environment has its own Terraform root, VPC, and S3 state key. Staging and production use non-overlapping CIDRs (`10.10.0.0/16` and `10.20.0.0/16`). By default, both target the same AWS account and `us-east-1`; for account-level isolation, use distinct AWS accounts and credentials or roles for the two environments.
